@@ -40,7 +40,7 @@ function onError(error) {
 
 function onListening() {
   const address = server.address();
-  const bind = typeof addr === 'string' ? 'pipe ' + address : 'port ' + address.port;
+  const bind = typeof address === 'string' ? 'pipe ' + address : 'port ' + address.port;
   console.log('---------------------------------------------------------------------------------');
   console.log(`${new Date().toISOString()} | Server running, listening on ${bind}`);
   console.log('---------------------------------------------------------------------------------');

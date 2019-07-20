@@ -2,12 +2,16 @@
 
 const router = require('express').Router();
 
-const usersController = require('../controllers/users');
+const userController = require('../controllers/user');
 
 const authController = require('../controllers/auth');
 
-router.use('/users', usersController);
+const accountController = require('../controllers/account');
+
+router.use('/user', userController);
 
 router.use('/auth', authController);
+
+router.use('/account', accountController);
 
 module.exports = router;

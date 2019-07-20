@@ -4,7 +4,7 @@ const router = require('express').Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const userService = require('../../services/users');
+const userService = require('../../services/user');
 
 router.post('/login', async (req, res, next) => {
   try {

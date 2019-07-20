@@ -1,36 +1,38 @@
 'use strict';
 
-const db = require('../db/index.js');
+const db = require('../db');
 
 /**
- * Create a new user
- * @param {Object} user: {email, password}
+ * Create a new User record
+ * @param {string} email email address
+ * @param {string} password hashed password
+ * @returns {number} id of the users record created
  */
-async function create(user) {
+async function create(email, password) {
   try {
-    const { email, password } = user;
     const pool = db.init();
     const query = {
-      text: 'insert into users (email, password) values($1, $2)',
+      text: 'insert into users (email, password) values($1, $2) returning id',
       values: [email, password]
     };
-    await pool.query(query);
+    const result = await pool.query(query);
+    return result.rows[0].id;
   } catch (error) {
     throw error;
   }
 }
 
 /**
- * Update a user
- * @param {Update} user: {id, email, password}
+ * Update the password for a User record
+ * @param {number} id ID of the User record to update
+ * @param {string} password hashed password
  */
-async function update(user) {
+async function updatePassword(id, password) {
   try {
-    const { id, email, password } = user;
     const pool = db.init();
     const query = {
-      text: 'update users set email = $1, password = $2 where id = $3',
-      values: [email, password, id]
+      text: 'update users set password = $1 where id = $2',
+      values: [password, id]
     };
     await pool.query(query);
   } catch (error) {
@@ -39,14 +41,14 @@ async function update(user) {
 }
 
 /**
- * Get a user for the id
- * @param {integer} id
+ * Get a User for the id
+ * @property {number} id ID of the User record to find
  */
 async function getByID(id) {
   try {
     const pool = db.init();
     const query = {
-      text: 'select id, email, password, create_date from users where id = $1',
+      text: 'select id, email, password, create_date as createDate from users where id = $1',
       values: [id]
     };
     const result = await pool.query(query);
@@ -76,7 +78,7 @@ async function getByEmail(email) {
 
 module.exports = {
   create,
-  update,
+  updatePassword,
   getByID,
   getByEmail
 };

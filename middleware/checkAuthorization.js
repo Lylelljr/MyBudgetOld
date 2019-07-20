@@ -7,7 +7,6 @@ function checkAuthorization(req, res, next) {
     return res.status(401).json({ message: 'Authorization failed' });
   }
 
-  // Split the token at the space to get the bearer token
   const token = req.headers.authorization.split(' ')[1];
   jwt.verify(token, process.env.TOKEN_SECRET, (error, token) => {
     if (error) {
@@ -18,10 +17,4 @@ function checkAuthorization(req, res, next) {
   });
 }
 
-function add(a, b) {
-  return a + b;
-}
-
-const result = add(5, 6);
-console.log(result);
 module.exports = checkAuthorization;
