@@ -4,7 +4,7 @@ const router = require('express').Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const userService = require('../../services/users');
+const userService = require('../../services/user');
 
 router.post('/login', async (req, res, next) => {
   try {
@@ -20,9 +20,13 @@ router.post('/login', async (req, res, next) => {
       return res.status(422).json({ message: 'Invalid password' });
     }
 
-    const token = jwt.sign({ id: user.id }, process.env.TOKEN_SECRET, {
-      expiresIn: `${process.env.TOKEN_EXPIRES_IN_SECONDS} seconds`
-    });
+    const token = jwt.sign(
+      { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName },
+      process.env.TOKEN_SECRET,
+      {
+        expiresIn: `${process.env.TOKEN_EXPIRES_IN_SECONDS} seconds`
+      }
+    );
 
     res.header('Authorization', `Bearer ${token}`);
 

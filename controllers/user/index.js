@@ -3,7 +3,7 @@
 const router = require('express').Router();
 const checkAuthorization = require('../../middleware/checkAuthorization.js');
 
-const userService = require('../../services/users');
+const userService = require('../../services/user');
 
 router.get('/:id', checkAuthorization, async (req, res, next) => {
   try {
@@ -22,31 +22,28 @@ router.get('/:id', checkAuthorization, async (req, res, next) => {
 
 router.post('/create', async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, firstName, lastName } = req.body;
 
     const emailExists = await userService.getByEmail(email);
     if (emailExists) {
       return res.status(422).json({ message: `The email address ${email} already exists.` });
     }
 
-    const user = await userService.create({
-      email,
-      password
-    });
+    const id = await userService.create(email, password, firstName, lastName);
 
-    return res.status(201).json(user);
+    return res.status(201).json({ message: { id } });
   } catch (error) {
     next(error);
   }
 });
 
-router.post('/update', checkAuthorization, async (req, res, next) => {
+router.put('/:id/password', checkAuthorization, async (req, res, next) => {
   try {
-    const { id, email, password } = req.body;
+    const { password } = req.body;
+    const id = parseInt(req.params.id);
 
-    const user = await userService.update({
+    const user = await userService.updatePassword({
       id,
-      email,
       password
     });
 
