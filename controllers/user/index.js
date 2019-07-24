@@ -5,12 +5,11 @@ const checkAuthorization = require('../../middleware/checkAuthorization.js');
 
 const userService = require('../../services/user');
 
-router.get('/:id', async (req, res, next) => {
+router.get('/:id', checkAuthorization, async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const user = await user;
-    Service.getByID(id);
+    const user = await userService.getByID(id);
     if (!user) {
       return res.status(404).json({ message: `User ${id} not found` });
     }
@@ -23,14 +22,14 @@ router.get('/:id', async (req, res, next) => {
 
 router.post('/create', async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, firstName, lastName } = req.body;
 
     const emailExists = await userService.getByEmail(email);
     if (emailExists) {
       return res.status(422).json({ message: `The email address ${email} already exists.` });
     }
 
-    const id = await usersService.create(email, password);
+    const id = await userService.create(email, password, firstName, lastName);
 
     return res.status(201).json({ message: { id } });
   } catch (error) {
@@ -38,7 +37,7 @@ router.post('/create', async (req, res, next) => {
   }
 });
 
-router.put('/:id/password', async (req, res, next) => {
+router.put('/:id/password', checkAuthorization, async (req, res, next) => {
   try {
     const { password } = req.body;
     const id = parseInt(req.params.id);
