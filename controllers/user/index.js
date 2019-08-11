@@ -14,7 +14,7 @@ router.get('/:id', checkAuthorization, async (req, res, next) => {
       return res.status(404).json({ message: `User was not found` });
     }
 
-    return res.status(200).json(user);
+    return res.status(200).json({ user });
   } catch (error) {
     next(error);
   }
