@@ -58,4 +58,25 @@ router.get('/user/:userId', checkAuthorization, async (req, res, next) => {
   }
 });
 
+router.delete('/:id', checkAuthorization, async (req, res, next) => {
+  try {
+    const { userId } = req.token;
+    const { id } = req.params;
+
+    const account = await accountService.getById(id);
+    if (!account) {
+      return res.sendStatus(404);
+    }
+
+    if (account.userId !== userId) {
+      return res.sendStatus(403);
+    }
+
+    await accountService.deleteById(id);
+    return res.sendStatus(204);
+  } catch (error) {
+    throw error;
+  }
+});
+
 module.exports = router;

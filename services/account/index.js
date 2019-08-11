@@ -65,9 +65,18 @@ async function getByUserId(userId) {
   }
 }
 
+async function deleteById(id) {
+  try {
+    await Account.destroy({ where: { id } });
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   create,
   getById,
   getByIdAccountName,
-  getByUserId
+  getByUserId,
+  deleteById
 };
