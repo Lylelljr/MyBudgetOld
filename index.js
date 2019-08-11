@@ -1,6 +1,6 @@
 'use strict';
 
-const env = require('dotenv').config();
+require('dotenv').config();
 
 const http = require('http');
 
