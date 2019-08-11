@@ -9,7 +9,7 @@ router.get('/:id', checkAuthorization, async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const user = await userService.getByID(id);
+    const user = await userService.getById(id);
     if (!user) {
       return res.status(404).json({ message: `User was not found` });
     }
