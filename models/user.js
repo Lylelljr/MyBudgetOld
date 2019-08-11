@@ -30,9 +30,11 @@ User.init(
   },
   {
     sequelize,
-    tableName: 'user',
     schema: 'api',
+    tableName: 'user',
+    modelName: 'user',
     timestamps: false,
+    underscored: true,
     freezeTableName: true
   }
 );
