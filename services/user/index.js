@@ -41,7 +41,7 @@ async function updatePassword(id, password) {
  * @param {number} id id of the User record to find
  * @returns {Object} User record
  */
-async function getByID(id) {
+async function getById(id) {
   try {
     const user = await User.findOne({ where: { id } });
     return user;
@@ -67,5 +67,5 @@ module.exports = {
   create,
   updatePassword,
   getByEmail,
-  getByID
+  getById
 };
