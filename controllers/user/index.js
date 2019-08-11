@@ -47,7 +47,7 @@ router.put('/:id/password', checkAuthorization, async (req, res, next) => {
       password
     });
 
-    return res.status(200).json(user);
+    return res.status(200).json({ user });
   } catch (error) {
     next(error);
   }
