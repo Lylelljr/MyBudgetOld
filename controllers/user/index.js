@@ -26,7 +26,7 @@ router.post('/create', async (req, res, next) => {
 
     const emailExists = await userService.getByEmail(email);
     if (emailExists) {
-      return res.status(422).json({ message: `The email address ${email} already exists.` });
+      return res.status(422).json({ message: `The email address already exists.` });
     }
 
     const id = await userService.create(email, password, firstName, lastName);
