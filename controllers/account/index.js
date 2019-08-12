@@ -51,7 +51,7 @@ router.post('/', checkAuthorization, async (req, res, next) => {
       userId
     });
 
-    return res.status(201).json({ accountId });
+    return res.status(201).json({ id: accountId });
   } catch (error) {
     throw error;
   }

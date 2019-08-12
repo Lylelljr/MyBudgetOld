@@ -39,7 +39,7 @@ router.post('/', async (req, res, next) => {
 
     const userId = await userService.create(email, password, firstName, lastName);
 
-    return res.status(201).json({ userId });
+    return res.status(201).json({ id: userId });
   } catch (error) {
     next(error);
   }
