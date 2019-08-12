@@ -2,6 +2,15 @@
 
 const Account = require('../../models/account');
 
+async function getAll() {
+  try {
+    const accounts = await Account.findAll();
+    return accounts.length > 0 ? accounts : null;
+  } catch (error) {
+    throw error;
+  }
+}
+
 async function create(account) {
   try {
     const {
@@ -59,7 +68,35 @@ async function getByIdAccountName(id, accountName) {
 async function getByUserId(userId) {
   try {
     const accounts = await Account.findAll({ where: { userId } });
-    return accounts;
+    return accounts.length > 0 ? accounts : null;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function updateById(id, account) {
+  try {
+    let {
+      accountName,
+      currentBalance,
+      dateOfCurrentBalance,
+      typeOfAccount,
+      isOnBudget,
+      isClosed
+    } = account;
+
+    await Account.update(
+      {
+        accountName,
+        currentBalance,
+        dateOfCurrentBalance,
+        typeOfAccount,
+        isOnBudget,
+        isClosed,
+        updateDate: Date.now()
+      },
+      { where: { id } }
+    );
   } catch (error) {
     throw error;
   }
@@ -75,8 +112,10 @@ async function deleteById(id) {
 
 module.exports = {
   create,
+  getAll,
   getById,
   getByIdAccountName,
   getByUserId,
-  deleteById
+  deleteById,
+  updateById
 };

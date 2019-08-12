@@ -3,14 +3,6 @@
 const User = require('../../models/user');
 const bcrypt = require('bcrypt');
 
-/**
- * Create a new User db record
- * @param {string} email email address
- * @param {string} password unhashed password
- * @param {string} firstName first name
- * @param {string} lastName last name
- * @returns {integer} id of the User record created
- */
 async function create(email, password, firstName, lastName) {
   try {
     const hash = await bcrypt.hashSync(password, 10);
@@ -22,11 +14,6 @@ async function create(email, password, firstName, lastName) {
   }
 }
 
-/**
- * Update a User db record
- * @param {integer} id id of the User record to update
- * @param {string} password unhashed password
- */
 async function updatePassword(id, password) {
   try {
     const hashedPassword = await bcrypt.hashSync(password);
@@ -36,11 +23,15 @@ async function updatePassword(id, password) {
   }
 }
 
-/**
- * Get the User by the id
- * @param {number} id id of the User record to find
- * @returns {Object} User record
- */
+async function getAll() {
+  try {
+    const users = await User.findAll();
+    return users.length > 0 ? users : null;
+  } catch (error) {
+    throw error;
+  }
+}
+
 async function getById(id) {
   try {
     const user = await User.findOne({ where: { id } });
@@ -50,10 +41,6 @@ async function getById(id) {
   }
 }
 
-/**
- * Check if the email already exists in the User table
- * @param {string} email
- */
 async function getByEmail(email) {
   try {
     const user = await User.findOne({ where: { email } });
@@ -63,9 +50,19 @@ async function getByEmail(email) {
   }
 }
 
+async function deleteById(id) {
+  try {
+    await User.destroy({ where: { id } });
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   create,
   updatePassword,
+  getAll,
   getByEmail,
-  getById
+  getById,
+  deleteById
 };
