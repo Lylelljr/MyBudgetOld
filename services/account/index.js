@@ -76,7 +76,7 @@ async function getByUserId(userId) {
 
 async function updateById(id, account) {
   try {
-    let {
+    const {
       accountName,
       currentBalance,
       dateOfCurrentBalance,
