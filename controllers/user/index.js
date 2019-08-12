@@ -92,4 +92,26 @@ router.delete('/:id', checkAuthorization, async (req, res, next) => {
   }
 });
 
+router.put('/:id', checkAuthorization, async (req, res, next) => {
+  try {
+    const { userId } = req.token;
+    const { id } = req.params;
+    const { email, password, firstName, lastName } = req.body;
+
+    const user = await userService.getById(id);
+    if (!user) {
+      return res.sendStatus(404);
+    }
+
+    if (user.id !== userId) {
+      return res.sendStatus(403);
+    }
+
+    await userService.updateById(userId, { email, password, firstName, lastName });
+    return res.sendStatus(204);
+  } catch (error) {
+    throw error;
+  }
+});
+
 module.exports = router;
