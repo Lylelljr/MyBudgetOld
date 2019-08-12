@@ -58,11 +58,31 @@ async function deleteById(id) {
   }
 }
 
+async function updateById(id, user) {
+  try {
+    const { email, password, firstName, lastName } = user;
+
+    await User.update(
+      {
+        email,
+        password,
+        firstName,
+        lastName,
+        updateDate: Date.now()
+      },
+      { where: { id } }
+    );
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   create,
   updatePassword,
   getAll,
   getByEmail,
   getById,
-  deleteById
+  deleteById,
+  updateById
 };
