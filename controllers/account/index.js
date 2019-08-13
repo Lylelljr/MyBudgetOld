@@ -1,8 +1,11 @@
 'use strict';
 
 const router = require('express').Router();
+
 const checkAuthorization = require('../../middleware/checkAuthorization.js');
 const accountService = require('../../services/account');
+const joiErrorParser = require('../../joi/joiErrorParser.js');
+const { validateId, validatePost } = require('../../schemas/account');
 
 router.get('/', checkAuthorization, async (req, res, next) => {
   try {
@@ -19,6 +22,12 @@ router.get('/', checkAuthorization, async (req, res, next) => {
 router.get('/:id', checkAuthorization, async (req, res, next) => {
   try {
     const { id } = req.params;
+
+    const validationResult = validateId({ id });
+    if (validationResult.error) {
+      return res.status(400).json(joiErrorParser(validationResult));
+    }
+
     const account = await accountService.getById(id);
     if (!account) {
       return res.sendStatus(404);
@@ -39,6 +48,17 @@ router.post('/', checkAuthorization, async (req, res, next) => {
       typeOfAccount,
       isOnBudget
     } = req.body;
+
+    const validationResult = validatePost({
+      accountName,
+      currentBalance,
+      dateOfCurrentBalance,
+      typeOfAccount,
+      isOnBudget
+    });
+    if (validationResult.error) {
+      return res.status(400).json(joiErrorParser(validationResult));
+    }
 
     const accountExists = await accountService.getByIdAccountName(userId, accountName);
     if (accountExists) {
@@ -61,10 +81,16 @@ router.post('/', checkAuthorization, async (req, res, next) => {
   }
 });
 
-router.get('/user/:userId', checkAuthorization, async (req, res, next) => {
+router.get('/user/:id', checkAuthorization, async (req, res, next) => {
   try {
-    const { userId } = req.params;
-    const accounts = await accountService.getByUserId(userId);
+    const { id } = req.params;
+
+    const validationResult = validateId({ id });
+    if (validationResult.error) {
+      return res.status(400).json(joiErrorParser(validationResult));
+    }
+
+    const accounts = await accountService.getByUserId(id);
     if (!accounts) {
       return res.sendStatus(404);
     }
@@ -86,6 +112,23 @@ router.put('/:id', checkAuthorization, async (req, res, next) => {
       isOnBudget,
       isClosed
     } = req.body;
+
+    let validationResult = validateId({ id });
+    if (validationResult.error) {
+      return res.status(400).json(joiErrorParser(validationResult));
+    }
+
+    validationResult = validatePut({
+      accountName,
+      currentBalance,
+      dateOfCurrentBalance,
+      typeOfAccount,
+      isOnBudget,
+      isClosed
+    });
+    if (validationResult.error) {
+      return res.status(400).json(joiErrorParser(validationResult));
+    }
 
     const account = await accountService.getById(id);
     if (!account) {
@@ -115,6 +158,11 @@ router.delete('/:id', checkAuthorization, async (req, res, next) => {
   try {
     const { userId } = req.token;
     const { id } = req.params;
+
+    const validationResult = validateId({ id });
+    if (validationResult.error) {
+      return res.status(400).json(joiErrorParser(validationResult));
+    }
 
     const account = await accountService.getById(id);
     if (!account) {
