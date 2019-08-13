@@ -5,33 +5,41 @@ const checkAuthorization = require('../../middleware/checkAuthorization.js');
 
 const userService = require('../../services/user');
 
+router.get('/', checkAuthorization, async (req, res, next) => {
+  const users = await userService.getAll();
+  if (!users) {
+    return res.sendStatus(204);
+  }
+  return res.status(200).json({ users });
+});
+
 router.get('/:id', checkAuthorization, async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const user = await userService.getByID(id);
+    const user = await userService.getById(id);
     if (!user) {
-      return res.status(404).json({ message: `User ${id} not found` });
+      return res.sendStatus(404);
     }
 
-    return res.status(200).json(user);
+    return res.status(200).json({ user });
   } catch (error) {
     next(error);
   }
 });
 
-router.post('/create', async (req, res, next) => {
+router.post('/', async (req, res, next) => {
   try {
     const { email, password, firstName, lastName } = req.body;
 
     const emailExists = await userService.getByEmail(email);
     if (emailExists) {
-      return res.status(422).json({ message: `The email address ${email} already exists.` });
+      return res.sendStatus(422);
     }
 
-    const id = await userService.create(email, password, firstName, lastName);
+    const userId = await userService.create(email, password, firstName, lastName);
 
-    return res.status(201).json({ message: { id } });
+    return res.status(201).json({ id: userId });
   } catch (error) {
     next(error);
   }
@@ -39,15 +47,68 @@ router.post('/create', async (req, res, next) => {
 
 router.put('/:id/password', checkAuthorization, async (req, res, next) => {
   try {
-    const { password } = req.body;
-    const id = parseInt(req.params.id);
+    const { userId } = req.token;
+    const { currentPassword, newPassword } = req.body;
+    const { id } = req.params;
 
-    const user = await userService.updatePassword({
+    const user = await userService.getById(userId);
+    if (!user) {
+      return res.sendStatus(404);
+    }
+
+    if (user.password !== currentPassword) {
+      return res.sendStatus(403);
+    }
+
+    await userService.updatePassword({
       id,
-      password
+      newPassword
     });
 
-    return res.status(200).json(user);
+    return res.sendStatus(200);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/:id', checkAuthorization, async (req, res, next) => {
+  try {
+    const { userId } = req.token;
+    const { id } = req.params;
+
+    const user = await userService.getById(id);
+    if (!user) {
+      return res.sendStatus(404);
+    }
+
+    if (user.userId !== userId) {
+      return res.sendStatus(403);
+    }
+
+    await userService.deleteById(id);
+    return res.sendStatus(204);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put('/:id', checkAuthorization, async (req, res, next) => {
+  try {
+    const { userId } = req.token;
+    const { id } = req.params;
+    const { email, password, firstName, lastName } = req.body;
+
+    const user = await userService.getById(id);
+    if (!user) {
+      return res.sendStatus(404);
+    }
+
+    if (user.id !== userId) {
+      return res.sendStatus(403);
+    }
+
+    await userService.updateById(userId, { email, password, firstName, lastName });
+    return res.sendStatus(204);
   } catch (error) {
     next(error);
   }
