@@ -5,11 +5,15 @@ const checkAuthorization = require('../../middleware/checkAuthorization.js');
 const accountService = require('../../services/account');
 
 router.get('/', checkAuthorization, async (req, res, next) => {
-  const accounts = await accountService.getAll();
-  if (!accounts) {
-    return res.sendStatus(404);
+  try {
+    const accounts = await accountService.getAll();
+    if (!accounts) {
+      return res.sendStatus(404);
+    }
+    return res.status(200).json({ accounts });
+  } catch (error) {
+    next(error);
   }
-  return res.status(200).json({ accounts });
 });
 
 router.get('/:id', checkAuthorization, async (req, res, next) => {
