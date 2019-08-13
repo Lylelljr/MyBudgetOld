@@ -21,7 +21,7 @@ router.get('/:id', checkAuthorization, async (req, res, next) => {
     }
     return res.status(200).json({ account });
   } catch (error) {
-    throw error;
+    next(error);
   }
 });
 
@@ -53,7 +53,7 @@ router.post('/', checkAuthorization, async (req, res, next) => {
 
     return res.status(201).json({ id: accountId });
   } catch (error) {
-    throw error;
+    next(error);
   }
 });
 
@@ -66,7 +66,7 @@ router.get('/user/:userId', checkAuthorization, async (req, res, next) => {
     }
     return res.status(200).json({ accounts });
   } catch (error) {
-    throw error;
+    next(error);
   }
 });
 
@@ -103,7 +103,7 @@ router.put('/:id', checkAuthorization, async (req, res, next) => {
 
     return res.sendStatus(204);
   } catch (error) {
-    throw error;
+    next(error);
   }
 });
 
@@ -124,7 +124,7 @@ router.delete('/:id', checkAuthorization, async (req, res, next) => {
     await accountService.deleteById(id);
     return res.sendStatus(204);
   } catch (error) {
-    throw error;
+    next(error);
   }
 });
 

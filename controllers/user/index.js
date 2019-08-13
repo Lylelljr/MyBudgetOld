@@ -88,7 +88,7 @@ router.delete('/:id', checkAuthorization, async (req, res, next) => {
     await userService.deleteById(id);
     return res.sendStatus(204);
   } catch (error) {
-    throw error;
+    next(error);
   }
 });
 
@@ -110,7 +110,7 @@ router.put('/:id', checkAuthorization, async (req, res, next) => {
     await userService.updateById(userId, { email, password, firstName, lastName });
     return res.sendStatus(204);
   } catch (error) {
-    throw error;
+    next(error);
   }
 });
 
