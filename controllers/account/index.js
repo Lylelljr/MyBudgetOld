@@ -5,7 +5,7 @@ const router = require('express').Router();
 const checkAuthorization = require('../../middleware/checkAuthorization.js');
 const accountService = require('../../services/account');
 const joiErrorParser = require('../../joi/joiErrorParser.js');
-const { validateId, validatePost } = require('../../schemas/account');
+const { validateId, validatePut, validatePost } = require('../../schemas/account');
 
 router.get('/', checkAuthorization, async (req, res, next) => {
   try {
