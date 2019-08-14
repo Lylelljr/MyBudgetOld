@@ -1,3 +1,5 @@
+'use strict';
+
 const validateId = require('./validateId.js');
 const validatePost = require('./validatePost.js');
 

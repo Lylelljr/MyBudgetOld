@@ -1,3 +1,5 @@
+'use strict';
+
 const Joi = require('@hapi/joi');
 const options = require('../../joi/options.js');
 
