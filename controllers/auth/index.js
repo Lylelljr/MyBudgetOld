@@ -5,19 +5,26 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const userService = require('../../services/user');
+const validateLogin = require('../../schemas/auth');
+const joiErrorParser = require('../../joi/joiErrorParser.js');
 
 router.post('/login', async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
+    const validationResult = validateLogin({ email, password });
+    if (validationResult.error) {
+      return res.status(400).json(joiErrorParser(validationResult));
+    }
+
     const user = await userService.getByEmail(email);
     if (!user) {
-      return res.status(422).json({ message: `The email address was not found` });
+      return res.sendStatus(404);
     }
 
     const match = await bcrypt.compareSync(password, user.password);
     if (!match) {
-      return res.status(422).json({ message: 'Invalid password' });
+      return res.sendStatus(422);
     }
 
     const token = jwt.sign(
@@ -38,10 +45,10 @@ router.post('/login', async (req, res, next) => {
 
 router.post('/logout', async (req, res, next) => {
   try {
-    if (req.headers && req.headers.authorization) {
+    if (req.headers.authorization) {
       delete req.headers.authorization;
     }
-    return res.status(401).json({ message: 'Logged out' });
+    return res.sendStatus(401);
   } catch (error) {
     next(error);
   }
