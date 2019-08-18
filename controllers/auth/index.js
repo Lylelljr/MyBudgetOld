@@ -8,6 +8,8 @@ const userService = require('../../services/user');
 const validateLogin = require('../../schemas/auth');
 const joiErrorParser = require('../../joi/joiErrorParser.js');
 
+const { tokenSecret, tokenExpiresInSeconds } = JSON.parse(process.env.JWT_CONFIG);
+
 router.post('/login', async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -29,9 +31,9 @@ router.post('/login', async (req, res, next) => {
 
     const token = jwt.sign(
       { userId: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName },
-      process.env.TOKEN_SECRET,
+      tokenSecret,
       {
-        expiresIn: `${process.env.TOKEN_EXPIRES_IN_SECONDS} seconds`
+        expiresIn: `${tokenExpiresInSeconds} seconds`
       }
     );
 
