@@ -9,7 +9,6 @@ async function create(email, password, firstName, lastName) {
     const user = await User.create({ email, password: hash, firstName, lastName });
     return user.id;
   } catch (error) {
-    esdwrrrrr;
     throw error;
   }
 }
