@@ -6,7 +6,7 @@ const checkAuthorization = require('../../middleware/checkAuthorization.js');
 const userService = require('../../services/user');
 
 const joiErrorParser = require('../../joi/joiErrorParser.js');
-const {validateId, validatePost, validatePut} = require('../../schemas/user');
+const {validateId, validatePasswordUpdate, validateUser} = require('../../schemas/user');
 
 router.get('/', checkAuthorization, async (req, res, next) => {
   const users = await userService.getAll();
@@ -40,7 +40,7 @@ router.post('/', async (req, res, next) => {
   try {
     const { email, password, firstName, lastName } = req.body;
 
-    const validationResult = validatePost({ email, password, firstName, lastName });
+    const validationResult = validateUser({ email, password, firstName, lastName });
     if (validationResult.error) {
       return res.status(400).json(joiErrorParser(validationResult));
     }
@@ -64,12 +64,12 @@ router.put('/:id/password', checkAuthorization, async (req, res, next) => {
     const { currentPassword, newPassword } = req.body;
     const { id } = req.params;
 
-    const validationResult = validateId({ id });
+    let validationResult = validateId({ id });
     if (validationResult.error) {
       return res.status(400).json(joiErrorParser(validationResult));
     }
 
-    const validationResult = validatePut({ currentPassword, newPassword });
+    validationResult = validatePasswordUpdate({ currentPassword, newPassword });
     if (validationResult.error) {
       return res.status(400).json(joiErrorParser(validationResult));
     }
@@ -126,12 +126,12 @@ router.put('/:id', checkAuthorization, async (req, res, next) => {
     const { id } = req.params;
     const { email, password, firstName, lastName } = req.body;
 
-    const validationResult = validateId({ id });
+    let validationResult = validateId({ id });
     if (validationResult.error) {
       return res.status(400).json(joiErrorParser(validationResult));
     }
 
-    const validationResult = validatePost({ email, password, firstName, lastName });
+    validationResult = validateUser({ email, password, firstName, lastName });
     if (validationResult.error) {
       return res.status(400).json(joiErrorParser(validationResult));
     }

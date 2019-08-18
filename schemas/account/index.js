@@ -1,11 +1,9 @@
 'use strict';
 
 const validateId = require('./validateId.js');
-const validatePost = require('./validatePost.js');
-const validatePut = require('./validatePut.js');
+const validateAccount = require('./validateAccount.js');
 
 module.exports = {
   validateId,
-  validatePost,
-  validatePut
+  validateAccount
 };

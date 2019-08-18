@@ -5,7 +5,7 @@ const router = require('express').Router();
 const checkAuthorization = require('../../middleware/checkAuthorization.js');
 const accountService = require('../../services/account');
 const joiErrorParser = require('../../joi/joiErrorParser.js');
-const { validateId, validatePut, validatePost } = require('../../schemas/account');
+const { validateId, validateAccount } = require('../../schemas/account');
 
 router.get('/', checkAuthorization, async (req, res, next) => {
   try {
@@ -46,15 +46,17 @@ router.post('/', checkAuthorization, async (req, res, next) => {
       currentBalance,
       dateOfCurrentBalance,
       typeOfAccount,
-      isOnBudget
+      isOnBudget,
+      isClosed
     } = req.body;
 
-    const validationResult = validatePost({
+    const validationResult = validateAccount({
       accountName,
       currentBalance,
       dateOfCurrentBalance,
       typeOfAccount,
-      isOnBudget
+      isOnBudget,
+      isClosed
     });
     if (validationResult.error) {
       return res.status(400).json(joiErrorParser(validationResult));
