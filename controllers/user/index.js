@@ -5,6 +5,9 @@ const checkAuthorization = require('../../middleware/checkAuthorization.js');
 
 const userService = require('../../services/user');
 
+const joiErrorParser = require('../../joi/joiErrorParser.js');
+const {validateId, validatePost, validatePut} = require('../../schemas/user');
+
 router.get('/', checkAuthorization, async (req, res, next) => {
   const users = await userService.getAll();
   if (!users) {
@@ -16,6 +19,11 @@ router.get('/', checkAuthorization, async (req, res, next) => {
 router.get('/:id', checkAuthorization, async (req, res, next) => {
   try {
     const { id } = req.params;
+
+    const validationResult = validateId({ id });
+    if (validationResult.error) {
+      return res.status(400).json(joiErrorParser(validationResult));
+    }
 
     const user = await userService.getById(id);
     if (!user) {
@@ -31,6 +39,11 @@ router.get('/:id', checkAuthorization, async (req, res, next) => {
 router.post('/', async (req, res, next) => {
   try {
     const { email, password, firstName, lastName } = req.body;
+
+    const validationResult = validatePost({ email, password, firstName, lastName });
+    if (validationResult.error) {
+      return res.status(400).json(joiErrorParser(validationResult));
+    }
 
     const emailExists = await userService.getByEmail(email);
     if (emailExists) {
@@ -50,6 +63,16 @@ router.put('/:id/password', checkAuthorization, async (req, res, next) => {
     const { userId } = req.token;
     const { currentPassword, newPassword } = req.body;
     const { id } = req.params;
+
+    const validationResult = validateId({ id });
+    if (validationResult.error) {
+      return res.status(400).json(joiErrorParser(validationResult));
+    }
+
+    const validationResult = validatePut({ currentPassword, newPassword });
+    if (validationResult.error) {
+      return res.status(400).json(joiErrorParser(validationResult));
+    }
 
     const user = await userService.getById(userId);
     if (!user) {
@@ -76,6 +99,11 @@ router.delete('/:id', checkAuthorization, async (req, res, next) => {
     const { userId } = req.token;
     const { id } = req.params;
 
+    const validationResult = validateId({ id });
+    if (validationResult.error) {
+      return res.status(400).json(joiErrorParser(validationResult));
+    }
+
     const user = await userService.getById(id);
     if (!user) {
       return res.sendStatus(404);
@@ -97,6 +125,16 @@ router.put('/:id', checkAuthorization, async (req, res, next) => {
     const { userId } = req.token;
     const { id } = req.params;
     const { email, password, firstName, lastName } = req.body;
+
+    const validationResult = validateId({ id });
+    if (validationResult.error) {
+      return res.status(400).json(joiErrorParser(validationResult));
+    }
+
+    const validationResult = validatePost({ email, password, firstName, lastName });
+    if (validationResult.error) {
+      return res.status(400).json(joiErrorParser(validationResult));
+    }
 
     const user = await userService.getById(id);
     if (!user) {
