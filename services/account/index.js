@@ -17,20 +17,20 @@ async function create(account) {
       accountName,
       currentBalance,
       dateOfCurrentBalance,
-      typeOfAccount,
       isOnBudget,
       isClosed,
-      userId
+      userId,
+      accountTypeId
     } = account;
 
     account = await Account.create({
       accountName,
       currentBalance,
       dateOfCurrentBalance,
-      typeOfAccount,
       isOnBudget,
       isClosed,
-      userId: userId
+      userId,
+      accountTypeId
     });
     return account.id;
   } catch (error) {
@@ -38,10 +38,6 @@ async function create(account) {
   }
 }
 
-/**
- * Get an account by the id
- * @param {integer} id
- */
 async function getById(id) {
   try {
     const account = await Account.findOne({ where: { id } });
@@ -51,11 +47,6 @@ async function getById(id) {
   }
 }
 
-/**
- * Get an account by the id and name
- * @param {integer} id
- * @param {string} name
- */
 async function getByIdAccountName(id, accountName) {
   try {
     const account = await Account.findOne({ where: { id, accountName } });

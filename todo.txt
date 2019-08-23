@@ -1,3 +1,12 @@
+# Create 'account_type' in database.  
+
+{
+  id: integer auto increment
+  name: varchar 255 
+  create_date: timestamp with time zone default current_timestamp
+  update_date: timestamp with time zone
+}
+
 # Create 'master_category' in database.  A master category serves as a parent to categories.
 
 {

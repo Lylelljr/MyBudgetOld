@@ -3,7 +3,9 @@
 const router = require('express').Router();
 
 const checkAuthorization = require('../../middleware/checkAuthorization.js');
+const userService = require('../../services/user');
 const accountService = require('../../services/account');
+const accountTypeService = require('../../services/accountType');
 const joiErrorParser = require('../../joi/joiErrorParser.js');
 const { validateId, validateAccount } = require('../../schemas/account');
 
@@ -40,21 +42,14 @@ router.get('/:id', checkAuthorization, async (req, res, next) => {
 
 router.post('/', checkAuthorization, async (req, res, next) => {
   try {
-    const { userId } = req.token;
-    const {
-      accountName,
-      currentBalance,
-      dateOfCurrentBalance,
-      typeOfAccount,
-      isOnBudget,
-      isClosed
-    } = req.body;
+    const tokenUserId = req.token.userId;
+    const { accountName, currentBalance, dateOfCurrentBalance, accountTypeId, isOnBudget, isClosed } = req.body;
 
     const validationResult = validateAccount({
       accountName,
       currentBalance,
       dateOfCurrentBalance,
-      typeOfAccount,
+      accountTypeId,
       isOnBudget,
       isClosed
     });
@@ -62,7 +57,21 @@ router.post('/', checkAuthorization, async (req, res, next) => {
       return res.status(400).json(joiErrorParser(validationResult));
     }
 
-    const accountExists = await accountService.getByIdAccountName(userId, accountName);
+    const user = await userService.getById(tokenUserId);
+    if (!user) {
+      return res.sendStatus(404);
+    }
+
+    if (user.id !== tokenUserId) {
+      return res.sendStatus(403);
+    }
+
+    const accountType = await accountTypeService.getById(accountTypeId);
+    if (!accountType) {
+      return res.sendStatus(404);
+    }
+
+    const accountExists = await accountService.getByIdAccountName(tokenUserId, accountName);
     if (accountExists) {
       return res.sendStatus(422);
     }
@@ -71,10 +80,10 @@ router.post('/', checkAuthorization, async (req, res, next) => {
       accountName,
       currentBalance,
       dateOfCurrentBalance,
-      typeOfAccount,
+      accountTypeId,
       isOnBudget,
-      isClosed: false,
-      userId
+      isClosed,
+      userId: tokenUserId
     });
 
     return res.status(201).json({ id: accountId });
@@ -104,29 +113,23 @@ router.get('/user/:id', checkAuthorization, async (req, res, next) => {
 
 router.put('/:id', checkAuthorization, async (req, res, next) => {
   try {
-    const { userId } = req.token;
+    const tokenUserId = req.token.userId;
     const { id } = req.params;
-    const {
-      accountName,
-      currentBalance,
-      dateOfCurrentBalance,
-      typeOfAccount,
-      isOnBudget,
-      isClosed
-    } = req.body;
+    const {accountName, currentBalance, dateOfCurrentBalance, accountTypeId, isOnBudget, isClosed, userId } = req.body;
 
     let validationResult = validateId({ id });
     if (validationResult.error) {
       return res.status(400).json(joiErrorParser(validationResult));
     }
 
-    validationResult = validatePut({
+    validationResult = validateAccount({
       accountName,
       currentBalance,
       dateOfCurrentBalance,
-      typeOfAccount,
+      accountTypeId,
       isOnBudget,
-      isClosed
+      isClosed,
+      userId
     });
     if (validationResult.error) {
       return res.status(400).json(joiErrorParser(validationResult));
@@ -137,7 +140,12 @@ router.put('/:id', checkAuthorization, async (req, res, next) => {
       return res.sendStatus(404);
     }
 
-    if (account.userId !== userId) {
+    if (account.userId !== tokenUserId) {
+      return res.sendStatus(403);
+    }
+
+    const accountType = await accountTypeService.getById(accountTypeId);
+    if (!accountType) {
       return res.sendStatus(403);
     }
 
@@ -145,7 +153,7 @@ router.put('/:id', checkAuthorization, async (req, res, next) => {
       accountName,
       currentBalance,
       dateOfCurrentBalance,
-      typeOfAccount,
+      accountTypeId,
       isOnBudget,
       isClosed
     });
