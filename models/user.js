@@ -20,6 +20,9 @@ User.init(
     },
     lastName: {
       type: Sequelize.STRING
+    },
+    isAdmin: {
+      type: Sequelize.BOOLEAN
     }
   },
   {
