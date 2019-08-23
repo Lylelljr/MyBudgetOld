@@ -83,8 +83,7 @@ async function updateById(id, account) {
         dateOfCurrentBalance,
         typeOfAccount,
         isOnBudget,
-        isClosed,
-        updateDate: Date.now()
+        isClosed
       },
       { where: { id } }
     );

@@ -66,8 +66,7 @@ async function updateById(id, user) {
         email,
         password,
         firstName,
-        lastName,
-        updateDate: Date.now()
+        lastName
       },
       { where: { id } }
     );
