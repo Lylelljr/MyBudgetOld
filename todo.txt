@@ -1,69 +1,61 @@
-# Create 'account_type' in database.  
-
+DONE - Create 'AccountTypes'.  An account type must be selected when an account is created.
 {
   id: integer auto increment
-  name: varchar 255 
-  create_date: timestamp with time zone default current_timestamp
-  update_date: timestamp with time zone
+  name: varchar 255
+  createdAt: timestamp with time zone
+  updatedAt: timestamp with time zone
 }
 
-# Create 'master_category' in database.  A master category serves as a parent to categories.
-
+Create 'MasterCategory'.  A master category serves as a parent to categories.
 {
   id: integer auto increment 
-  user_id: integer foreign key 
+  userId: integer foreign key 
   name: varchar 255 
-  sort_order: integer
-  create_date: timestamp with time zone default current_timestamp
-  update_date: timestamp with time zone
+  sortOrder: integer
+  createdAt: timestamp with time zone 
+  updatedAt: timestamp with time zone
 }
 
-# Create 'category' in database.  A category must be selected when a transaction is entered.
-
+Create 'Category'.  A category must be selected when a transaction is entered.
 {
   id: integer auto increment 
-  master_category_id: integer foreign key 
+  masterCategoryId: integer foreign key 
   name: varchar 255 
-  sort_order: integer
-  create_date: timestamp with time zone default current_timestamp
-  update_date: timestamp with time zone
+  sortOrder: integer
+  createdAt: timestamp with time zone 
+  updatedAt: timestamp with time zone
 }
 
-# Create 'payee' in database.  A payee is the company that was paid on a transaction. 
-
+Create 'Payee'.  A payee is the entity that was paid on a transaction. 
 {
   id: integer auto increment 
-  user_id: integer foreign key 
+  userId: integer foreign key 
   name: varchar 255 
-  create_date: timestamp with time zone default current_timestamp
-  update_date: timestamp with time zone
+  createdAt: timestamp with time zone 
+  updatedAt: timestamp with time zone
 }
 
-# Create 'transaction_flag_color_enum' in database. ['Red','Orange','Yellow','Green','Blue','Purple']
-
+Create 'TransactionFlagColorEnum'. ['Red','Orange','Yellow','Green','Blue','Purple']
 {
   id: integer auto increment
   color: varchar 255 
+  createdAt: timestamp with time zone 
+  updatedAt: timestamp with time zone
 }
 
-# Create 'transaction' in database.  A transaction belongs to a user, must have a payee, and must have a category.
-
+Create 'Transaction'.  A transaction belongs to a user, must have a payee, and must have a category.
 {
   id: integer auto increment 
-  account_id: integer foreign key
-  payee_id: integer foriegn key
-  category_id: integer foreign key
-  transaction_flag_color_enum_id: integer foreign key
-  transaction_date: timestamp with time zone
+  accountId: integer foreign key
+  payeeId: integer foriegn key
+  categoryId: integer foreign key
+  transactionFlagColorEnumId: integer foreign key
+  transactionDate: timestamp with time zone
   memo: varchar 255 
   outflow: decimal 14,2
   inflow: decimal 14,2
   cleared: boolean 
-  create_date: timestamp with time zone default current_timestamp
-  update_date: timestamp with time zone
+  createdAt: timestamp with time zone default current_timestamp
+  updatedAt: timestamp with time zone
 }
 
-# Create model, controller and service for master_category.
-# Create model, controller and service for category.
-# Create model, controller and service for payee.
-# Create model, controller and service for transaction.
