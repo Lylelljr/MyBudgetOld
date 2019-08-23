@@ -1,10 +1,12 @@
 'use strict';
 
 const Account = require('../../models/account');
+const AccountType = require('../../models/accountType');
+const User = require('../../models/user');
 
 async function getAll() {
   try {
-    const accounts = await Account.findAll();
+    const accounts = await Account.findAll({ include: [{ model: AccountType, as: 'accountTypes' }] });
     return accounts.length > 0 ? accounts : null;
   } catch (error) {
     throw error;
@@ -40,7 +42,7 @@ async function create(account) {
 
 async function getById(id) {
   try {
-    const account = await Account.findOne({ where: { id } });
+    const account = await Account.findOne({ where: { id }, include: [{ model: AccountType, as: 'accountType' }, { model: User, as: 'user' }] });
     return account;
   } catch (error) {
     throw error;
@@ -49,7 +51,7 @@ async function getById(id) {
 
 async function getByIdAccountName(id, accountName) {
   try {
-    const account = await Account.findOne({ where: { id, accountName } });
+    const account = await Account.findOne({ where: { id, accountName }, include: [{ model: AccountType, as: 'accountType' }] });
     return account;
   } catch (error) {
     throw error;
@@ -58,7 +60,7 @@ async function getByIdAccountName(id, accountName) {
 
 async function getByUserId(userId) {
   try {
-    const accounts = await Account.findAll({ where: { userId } });
+    const accounts = await Account.findAll({ where: { userId }, include: [{model: AccountType}] });
     return accounts.length > 0 ? accounts : null;
   } catch (error) {
     throw error;
