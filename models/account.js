@@ -17,7 +17,7 @@ Account.init(
       type: Sequelize.STRING
     },
     currentBalance: {
-      type: Sequelize.INTEGER
+      type: Sequelize.DECIMAL(14,2)
     },
     dateOfCurrentBalance: {
       type: Sequelize.DATE
@@ -35,14 +35,30 @@ Account.init(
   }
 );
 
-User.hasMany(Account, { 
+Account.belongsTo(User, {
+  as: 'user',
+  foreignKey: { 
+    name: 'userId',
+    field: 'userId'
+  }
+});
+
+User.hasMany(Account, {
   foreignKey: { 
     name: 'userId',
     field: 'userId'
   } 
 });
 
-AccountType.hasOne(Account, { 
+Account.belongsTo(AccountType, {
+  as: 'accountType',
+  foreignKey: { 
+    name: 'accountTypeId',
+    field: 'accountTypeId'
+  } 
+});
+
+AccountType.hasMany(Account, {
   foreignKey: { 
     name: 'accountTypeId',
     field: 'accountTypeId'
