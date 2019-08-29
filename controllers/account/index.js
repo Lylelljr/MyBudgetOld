@@ -7,7 +7,7 @@ const userService = require('../../services/user');
 const accountService = require('../../services/account');
 const accountTypeService = require('../../services/accountType');
 const joiErrorParser = require('../../joi/joiErrorParser.js');
-const { validateId, validateAccount } = require('../../schemas/account');
+const { validateId, validateAccount } = require('../../schemas/account.js');
 
 router.get('/', checkAuthorization, async (req, res, next) => {
   try {
@@ -23,6 +23,7 @@ router.get('/', checkAuthorization, async (req, res, next) => {
 
 router.get('/:id', checkAuthorization, async (req, res, next) => {
   try {
+    const tokenUserId = req.token.userId;
     const { id } = req.params;
 
     const validationResult = validateId({ id });
@@ -34,6 +35,11 @@ router.get('/:id', checkAuthorization, async (req, res, next) => {
     if (!account) {
       return res.sendStatus(404);
     }
+
+    if (account.id !== tokenUserId) {
+      res.sendStatus(403);
+    }
+
     return res.status(200).json({ account });
   } catch (error) {
     next(error);
@@ -94,6 +100,7 @@ router.post('/', checkAuthorization, async (req, res, next) => {
 
 router.get('/user/:id', checkAuthorization, async (req, res, next) => {
   try {
+    const tokenUserId = req.token.userId;
     const { id } = req.params;
 
     const validationResult = validateId({ id });
@@ -105,6 +112,11 @@ router.get('/user/:id', checkAuthorization, async (req, res, next) => {
     if (!accounts) {
       return res.sendStatus(404);
     }
+
+    if (accounts[0].id !== tokenUserId) {
+      res.sendStatus(403);
+    }
+
     return res.status(200).json({ accounts });
   } catch (error) {
     next(error);

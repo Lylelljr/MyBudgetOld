@@ -1,8 +1,8 @@
 'use strict';
 
-const Account = require('../../models/account');
-const AccountType = require('../../models/accountType');
-const User = require('../../models/user');
+const Account = require('../../models/account.js');
+const AccountType = require('../../models/accountType.js');
+const User = require('../../models/user.js');
 
 async function getAll() {
   try {
@@ -42,7 +42,7 @@ async function create(account) {
 
 async function getById(id) {
   try {
-    const account = await Account.findOne({ where: { id }, include: [{ model: AccountType, as: 'accountType' }, { model: User, as: 'user' }] });
+    const account = await Account.findOne({ where: { id }, include: ['accountType', 'user'] });
     return account;
   } catch (error) {
     throw error;
@@ -51,7 +51,7 @@ async function getById(id) {
 
 async function getByIdAccountName(id, accountName) {
   try {
-    const account = await Account.findOne({ where: { id, accountName }, include: [{ model: AccountType, as: 'accountType' }] });
+    const account = await Account.findOne({ where: { id, accountName }, include: ['accountType'] });
     return account;
   } catch (error) {
     throw error;
@@ -60,7 +60,7 @@ async function getByIdAccountName(id, accountName) {
 
 async function getByUserId(userId) {
   try {
-    const accounts = await Account.findAll({ where: { userId }, include: [{model: AccountType}] });
+    const accounts = await Account.findAll({ where: { userId }, include: ['accountType'] });
     return accounts.length > 0 ? accounts : null;
   } catch (error) {
     throw error;
@@ -78,8 +78,7 @@ async function updateById(id, account) {
       isClosed
     } = account;
 
-    await Account.update(
-      {
+    await Account.update( {
         accountName,
         currentBalance,
         dateOfCurrentBalance,
