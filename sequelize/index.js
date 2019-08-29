@@ -25,6 +25,6 @@ sequelize
     console.error(`Failed to connect to database ${database}`, error);
   });
 
-sequelize.sync();
+//sequelize.sync();
 
 module.exports = { sequelize, Sequelize };
