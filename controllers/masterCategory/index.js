@@ -6,7 +6,7 @@ const checkAuthorization = require('../../middleware/checkAuthorization.js');
 const userService = require('../../services/user');
 const masterCategoryService = require('../../services/masterCategory');
 const joiErrorParser = require('../../joi/joiErrorParser.js');
-const { validateId, validateMasterCategory } = require('../../schemas/masterCategory');
+const { validateId, validateMasterCategory, validateMasterCategorySortOrder } = require('../../schemas/masterCategory');
 
 router.get('/', checkAuthorization, async (req, res, next) => {
   try {
@@ -23,7 +23,7 @@ router.get('/', checkAuthorization, async (req, res, next) => {
 router.get('/:id', checkAuthorization, async (req, res, next) => {
   try {
     const tokenUserId = req.token.userId;
-    const id = req.params;
+    const { id }  = req.params;
 
     const validationResult = validateId({ id });
     if (validationResult.error) {
@@ -55,12 +55,12 @@ router.post('/', checkAuthorization, async (req, res, next) => {
       return res.status(400).json(joiErrorParser(validationResult));
     }
   
-    const masterCategory = await masterCategoryService.getById(tokenUserId);
-    if (!masterCategory) {
+    const user = await userService.getById(tokenUserId);
+    if (!user) {
       return res.sendStatus(404);
     }
   
-    if (masterCategory.userId !== tokenUserId) {
+    if (user.Id !== tokenUserId) {
       return res.sendStatus(403);
     }
   
@@ -76,11 +76,103 @@ router.post('/', checkAuthorization, async (req, res, next) => {
 
 });
 
-router.put('/:id', checkAuthorization, async (req, res, next) => {
-  return res.sendStatus(204);
+router.put('/:id/name', checkAuthorization, async (req, res, next) => {
+  try {
+    const tokenUserId = req.token.userId;
+    const { id } = req.params;
+    const { name } = req.body;
+
+    let validationResult = validateId({ id });
+    if (validationResult.error) {
+      return res.status(400).json(joiErrorParser(validationResult));
+    }
+
+    validationResult = validateMasterCategory({ name });
+    if (validationResult.error) {
+      return res.status(400).json(joiErrorParser(validationResult));
+    }
+  
+    const masterCategory = await masterCategoryService.getById(tokenUserId);
+    if (!masterCategory) {
+      return res.sendStatus(404);
+    }
+  
+    if (masterCategory.userId !== tokenUserId) {
+      return res.sendStatus(403);
+    }
+
+    await masterCategoryService.updateNameById(id, { name });
+
+    return res.sendStatus(204);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put('/:id/sort-order', checkAuthorization, async (req, res, next) => {
+  try {
+    const tokenUserId = req.token.userId;
+    const { id } = req.params;
+    const { sortOrder } = req.body;
+
+    let validationResult = validateId({ id });
+    if (validationResult.error) {
+      return res.status(400).json(joiErrorParser(validationResult));
+    }
+
+    validationResult = validateMasterCategorySortOrder({ sortOrder });
+    if (validationResult.error) {
+      return res.status(400).json(joiErrorParser(validationResult));
+    }
+  
+    const masterCategory = await masterCategoryService.getById(tokenUserId);
+    if (!masterCategory) {
+      return res.sendStatus(404);
+    }
+  
+    if (masterCategory.userId !== tokenUserId) {
+      return res.sendStatus(403);
+    }
+
+    let increasing;
+    if (masterCategory.sortOrder === sortOrder) {
+      return res.sendStatus(403); // find out what code to send back for "cannot update"
+    } else {
+      increasing = sortOrder > masterCategory.sortOrder ? true : false;
+    }
+    await masterCategoryService.updateSortOrderById(id, sortOrder, increasing);
+
+    return res.sendStatus(204);
+  } catch (error) {
+    next(error);
+  }
 });
 
 router.delete('/:id', checkAuthorization, async (req, res, next) => {
+  try {
+    const { userId } = req.token;
+    const { id } = req.params;
+
+    const validationResult = validateId({ id });
+    if (validationResult.error) {
+      return res.status(400).json(joiErrorParser(validationResult));
+    }
+
+    const masterCategory = await masterCategoryService.getById(id);
+    if (!masterCategory) {
+      return res.sendStatus(404);
+    }
+
+    if (masterCategory.userId !== userId) {
+      return res.sendStatus(403);
+    }
+
+    await masterCategoryService.deleteById(id, sortOrder);
+    return res.sendStatus(204);
+  } catch (error) {
+    next(error);
+  }
+
   return res.sendStatus(204);
 });
 

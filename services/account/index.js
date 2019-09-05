@@ -78,7 +78,7 @@ async function updateById(id, account) {
       isClosed
     } = account;
 
-    await Account.update( {
+    await Account.update({
         accountName,
         currentBalance,
         dateOfCurrentBalance,
