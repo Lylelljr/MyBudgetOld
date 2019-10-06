@@ -16,6 +16,6 @@ router.use('/auth', authController);
 
 router.use('/account', accountController);
 
-router.use('/master-category', masterCategoryController);
+router.use('/masterCategory', masterCategoryController);
 
 module.exports = router;

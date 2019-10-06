@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 async function create(email, password, firstName, lastName) {
   try {
     const hash = await bcrypt.hashSync(password, 10);
-    const user = await User.create({ email, password: hash, firstName, lastName });
+    const user = await User.create({ email, password: hash, firstName, lastName, isAdmin: false });
     return user.id;
   } catch (error) {
     throw error;

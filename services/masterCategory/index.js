@@ -1,6 +1,7 @@
 'use strict';
 
 const MasterCategory = require('../../models/masterCategory.js');
+const { sequelize } = require('../../sequelize');
 
 async function getAll() {
   try {
@@ -23,9 +24,11 @@ async function getById(id) {
 async function create(masterCategory) {
   try {
     const { name, userId } = masterCategory;
+    const sortOrder = await getMaxSortOrderForUserId(userId) + 1;
     masterCategory = await MasterCategory.create({
       name,
-      userId
+      userId,
+      sortOrder
     });
     return masterCategory.id;
   } catch (error) {
@@ -45,59 +48,68 @@ async function updateNameById(id, masterCategory) {
 /**
  * 
  * @param {integer} id 
+ * @param {integer} userId
  * @param {integer} sortOrder 
  * @param {boolean} increasing true = increasing
  */
-async function updateSortOrderById(userId, sortOrder, increasing) {
+async function updateSortOrderByUserId(id, userId, oldSortOrder, newSortOrder) {
   try {
-        /**
-     * Sort Order
-     * 1
-     * 2
-     * 3
-     * 4
-     * 
-     * masterCategory.sortOrder = 2
-     * sortOrder = 4
-     * 
-     * 3 moves to 2
-     * 4 moves to 3
-     * 2 moves to 4
-     *
-     * Begin transaction;
-     * 
-     * update MasterCategory
-     * set sortOrder = sortOrder - 1 
-     * where userId = {userId} and sortOrder >= {2} and sortOrder < {4}
-     * 
-     * update MasterCategory
-     * set sortOrder = 4
-     * where id = {id};
-     * 
-     * Commit;
-     */
-
-
-
-    await MasterCategory.update({ sortOrder }, { where: { userId } });
+    await sequelize.transaction(async () => {
+      if (newSortOrder > oldSortOrder) {
+        sequelize.query('UPDATE "api"."MasterCategories" SET "sortOrder" = "sortOrder" - 1 WHERE "userId" = $1 AND ("sortOrder" > $2 AND "sortOrder" <= $3)', { 
+          bind: [userId, oldSortOrder, newSortOrder],
+          type: sequelize.QueryTypes.UPDATE
+        });
+      } else {
+        sequelize.query('UPDATE "api"."MasterCategories" SET "sortOrder" = "sortOrder" + 1 WHERE "userId" = $1 AND ("sortOrder" >= $2 AND "sortOrder" < $3)', { 
+          bind: [userId, newSortOrder, oldSortOrder],
+          type: sequelize.QueryTypes.UPDATE
+        });
+      }
+      MasterCategory.update({ sortOrder: newSortOrder }, { where: { id } });
+    });
   } catch (error) {
     throw error;
   }
 }
 
-async function deleteById(userId, sortOrder) {
+async function deleteById(id, userId, sortOrder) {
   try {
-    await MasterCategory.destroy({ where: { userId } });   
-    // The sort order needs to be updated after deleting a record.
-    // Extract sort order logic to shared function 
+    await MasterCategory.destroy({ where: { id } });   
+    await updateSortOrderForUserIdAfterDelete(userId, sortOrder);
   } catch (error) {
     throw error;
   }
 }
 
-async function updateSortOrder(id, sortOrder, increasing) {
+async function getByUserIdName(userId, name) {
   try {
-    
+    const result = await MasterCategory.findOne({ where: { userId, name } });
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getMaxSortOrderForUserId(userId) {
+  try {
+    const result = await MasterCategory.max('sortOrder', { where: userId } );
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function updateSortOrderForUserIdAfterDelete(userId, sortOrder) {
+  try {
+    await sequelize.query(`
+      UPDATE "api"."MasterCategories" 
+      SET "sortOrder" = "sortOrder" - 1 
+      WHERE "userId" = $1 AND "sortOrder" > $2)`
+    , { 
+      bind: [userId, sortOrder],
+      type: sequelize.QueryTypes.UPDATE
+    });
   } catch (error) {
     throw error;
   }
@@ -108,6 +120,8 @@ module.exports = {
   getById,
   create,
   updateNameById,
-  updateSortOrderById,
-  deleteById
+  updateSortOrderByUserId,
+  deleteById,
+  getMaxSortOrderForUserId,
+  getByUserIdName
 }

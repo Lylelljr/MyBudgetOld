@@ -30,14 +30,15 @@ MasterCategory.belongsTo(User, {
   foreignKey: { 
     name: 'userId',
     field: 'userId'
-  }
+  },
+  onDelete: 'cascade'
 });
 
 User.hasMany(MasterCategory, {
   foreignKey: { 
     name: 'userId',
     field: 'userId'
-  } 
+  }
 });
 
 module.exports = MasterCategory;

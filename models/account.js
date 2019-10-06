@@ -40,14 +40,15 @@ Account.belongsTo(User, {
   foreignKey: { 
     name: 'userId',
     field: 'userId'
-  }
+  },
+  onDelete: 'cascade'
 });
 
 User.hasMany(Account, {
   foreignKey: { 
     name: 'userId',
     field: 'userId'
-  } 
+  }
 });
 
 Account.belongsTo(AccountType, {
@@ -55,14 +56,14 @@ Account.belongsTo(AccountType, {
   foreignKey: { 
     name: 'accountTypeId',
     field: 'accountTypeId'
-  } 
+  }
 });
 
 AccountType.hasMany(Account, {
   foreignKey: { 
     name: 'accountTypeId',
     field: 'accountTypeId'
-  } 
+  }
 });
 
 module.exports = Account;

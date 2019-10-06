@@ -49,9 +49,9 @@ async function getById(id) {
   }
 }
 
-async function getByIdAccountName(id, accountName) {
+async function getByUserIdName(userId, accountName) {
   try {
-    const account = await Account.findOne({ where: { id, accountName }, include: ['accountType'] });
+    const account = await Account.findOne({ where: { userId, accountName }, include: ['accountType'] });
     return account;
   } catch (error) {
     throw error;
@@ -105,7 +105,7 @@ module.exports = {
   create,
   getAll,
   getById,
-  getByIdAccountName,
+  getByUserIdName,
   getByUserId,
   deleteById,
   updateById

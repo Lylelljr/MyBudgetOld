@@ -7,7 +7,7 @@ const userService = require('../../services/user');
 const accountService = require('../../services/account');
 const accountTypeService = require('../../services/accountType');
 const joiErrorParser = require('../../joi/joiErrorParser.js');
-const { validateId, validateAccount } = require('../../schemas/account.js');
+const { validateId, validateAccount } = require('../../schemas/account');
 
 router.get('/', checkAuthorization, async (req, res, next) => {
   try {
@@ -77,7 +77,7 @@ router.post('/', checkAuthorization, async (req, res, next) => {
       return res.sendStatus(404);
     }
 
-    const accountExists = await accountService.getByIdAccountName(tokenUserId, accountName);
+    const accountExists = await accountService.getByUserIdAccountName(tokenUserId, accountName);
     if (accountExists) {
       return res.sendStatus(422);
     }

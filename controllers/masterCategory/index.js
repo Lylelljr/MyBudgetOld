@@ -10,7 +10,7 @@ const { validateId, validateMasterCategory, validateMasterCategorySortOrder } = 
 
 router.get('/', checkAuthorization, async (req, res, next) => {
   try {
-    const masterCategories = masterCategoryService.getAll();
+    const masterCategories = await masterCategoryService.getAll();
     if (!masterCategories) {
       return res.sendStatus(404);
     }
@@ -60,8 +60,13 @@ router.post('/', checkAuthorization, async (req, res, next) => {
       return res.sendStatus(404);
     }
   
-    if (user.Id !== tokenUserId) {
+    if (user.id !== tokenUserId) {
       return res.sendStatus(403);
+    }
+
+    const masterCategory = await masterCategoryService.getByUserIdName(tokenUserId, name);
+    if (masterCategory) {
+      return res.sendStatus(422);
     }
   
     const masterCategoryId = await masterCategoryService.create({ 
@@ -109,7 +114,7 @@ router.put('/:id/name', checkAuthorization, async (req, res, next) => {
   }
 });
 
-router.put('/:id/sort-order', checkAuthorization, async (req, res, next) => {
+router.put('/:id/sortOrder', checkAuthorization, async (req, res, next) => {
   try {
     const tokenUserId = req.token.userId;
     const { id } = req.params;
@@ -125,7 +130,7 @@ router.put('/:id/sort-order', checkAuthorization, async (req, res, next) => {
       return res.status(400).json(joiErrorParser(validationResult));
     }
   
-    const masterCategory = await masterCategoryService.getById(tokenUserId);
+    const masterCategory = await masterCategoryService.getById(id);
     if (!masterCategory) {
       return res.sendStatus(404);
     }
@@ -134,13 +139,11 @@ router.put('/:id/sort-order', checkAuthorization, async (req, res, next) => {
       return res.sendStatus(403);
     }
 
-    let increasing;
     if (masterCategory.sortOrder === sortOrder) {
       return res.sendStatus(403); // find out what code to send back for "cannot update"
-    } else {
-      increasing = sortOrder > masterCategory.sortOrder ? true : false;
     }
-    await masterCategoryService.updateSortOrderById(id, sortOrder, increasing);
+
+    await masterCategoryService.updateSortOrderByUserId(id, masterCategory.userId, masterCategory.sortOrder, sortOrder);
 
     return res.sendStatus(204);
   } catch (error) {
@@ -150,7 +153,7 @@ router.put('/:id/sort-order', checkAuthorization, async (req, res, next) => {
 
 router.delete('/:id', checkAuthorization, async (req, res, next) => {
   try {
-    const { userId } = req.token;
+    const { tokenUserId } = req.token;
     const { id } = req.params;
 
     const validationResult = validateId({ id });
@@ -163,11 +166,11 @@ router.delete('/:id', checkAuthorization, async (req, res, next) => {
       return res.sendStatus(404);
     }
 
-    if (masterCategory.userId !== userId) {
+    if (masterCategory.userId !== tokenUserId) {
       return res.sendStatus(403);
     }
 
-    await masterCategoryService.deleteById(id, sortOrder);
+    await masterCategoryService.deleteById(id, tokenUserId, sortOrder);
     return res.sendStatus(204);
   } catch (error) {
     next(error);
